@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Pi Camera</title>
+    <style>
+        img {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Camera Feed</h1>
+    <img id="cameraFeed" src="{{ url_for('video_feed') }}" alt="Camera feed not available">
+
+    <script>
+        // Function to take a picture when triggered
+        function takePicture() {
+            fetch('/take_picture', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.status);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Listening for the PS3 controller input (via JavaScript gamepad API)
+        window.addEventListener("gamepadconnected", function(e) {
+            console.log("Gamepad connected:", e.gamepad);
+
+            // Poll the gamepad for button presses
+            setInterval(function() {
+                let gamepads = navigator.getGamepads();
+                if (gamepads[0]) {
+                    let buttons = gamepads[0].buttons;
+
+                    // Check if the triangle button (button index 3) is pressed
+                    if (buttons[3].pressed) {
+                        console.log("Triangle button pressed!");
+                        takePicture();  // Trigger the picture function
+                    }
+                }
+            }, 100);  // Polling interval (100ms)
+        });
+    </script>
+</body>
+</html>
